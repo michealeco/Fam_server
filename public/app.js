@@ -16,16 +16,36 @@ function formatMac(value) {
   return hex.match(/.{1,2}/g)?.join(":") ?? hex;
 }
 
-function loadSettings() {
+function applySettings(data) {
+  if (!data) return;
+  if (data.mac) macInput.value = formatMac(data.mac);
+  if (data.broadcast) broadcastInput.value = data.broadcast;
+  if (data.port) portInput.value = String(data.port);
+  if (data.name) hintEl.textContent = `Target: ${data.name}`;
+}
+
+function loadLocalSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    if (data.mac) macInput.value = formatMac(data.mac);
-    if (data.broadcast) broadcastInput.value = data.broadcast;
-    if (data.port) portInput.value = String(data.port);
+    if (!raw) return null;
+    return JSON.parse(raw);
   } catch {
-    /* ignore corrupt storage */
+    return null;
+  }
+}
+
+async function loadSettings() {
+  const local = loadLocalSettings();
+  if (local?.mac) {
+    applySettings(local);
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/config");
+    if (res.ok) applySettings(await res.json());
+  } catch {
+    /* server defaults optional */
   }
 }
 
@@ -134,5 +154,4 @@ document.getElementById("wakeForm").addEventListener("submit", (e) => {
   wake();
 });
 
-loadSettings();
-setStatus("Ready");
+loadSettings().then(() => setStatus("Ready"));

@@ -6,6 +6,27 @@ const { networkInterfaces } = require("os");
 
 const PORT = Number(process.env.PORT) || 3847;
 const PUBLIC_DIR = path.join(__dirname, "public");
+const CONFIG_PATH = path.join(__dirname, "config.json");
+
+function loadConfig() {
+  try {
+    const raw = fs.readFileSync(CONFIG_PATH, "utf8");
+    const data = JSON.parse(raw);
+    return {
+      mac: data.mac || "",
+      broadcast: data.broadcast || "255.255.255.255",
+      port: Number(data.port) || 9,
+      name: data.name || "PC",
+    };
+  } catch {
+    return {
+      mac: process.env.WOL_MAC || "",
+      broadcast: process.env.WOL_BROADCAST || "255.255.255.255",
+      port: Number(process.env.WOL_PORT) || 9,
+      name: process.env.WOL_NAME || "PC",
+    };
+  }
+}
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -64,19 +85,20 @@ function localIpv4Hints() {
   return hints;
 }
 
-function sendWake({ mac, broadcast, port }) {
+function sendWake({ mac, broadcast, port } = {}) {
   return new Promise((resolve, reject) => {
-    const macBuf = parseMac(mac);
+    const defaults = loadConfig();
+    const macBuf = parseMac(mac || defaults.mac);
     if (!macBuf) {
       reject(new Error("Invalid MAC address. Use format AA:BB:CC:DD:EE:FF"));
       return;
     }
-    const target = broadcast || "255.255.255.255";
+    const target = broadcast || defaults.broadcast || "255.255.255.255";
     if (!isBroadcastIp(target)) {
       reject(new Error("Invalid broadcast / IP address"));
       return;
     }
-    const udpPort = Number(port) || 9;
+    const udpPort = Number(port || defaults.port) || 9;
     if (!Number.isInteger(udpPort) || udpPort < 1 || udpPort > 65535) {
       reject(new Error("Port must be between 1 and 65535"));
       return;
@@ -190,6 +212,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === "GET" && url === "/api/config") {
+    sendJson(res, 200, loadConfig());
+    return;
+  }
+
   if (req.method === "POST" && url === "/api/wake") {
     try {
       const body = await readBody(req);
@@ -210,6 +237,11 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`PC Open — Wake-on-LAN ready at http://localhost:${PORT}`);
-  console.log("Open that URL from any device on your network to wake your PC.");
+  const cfg = loadConfig();
+  console.log(`PC Open — Wake-on-LAN ready at http://0.0.0.0:${PORT}`);
+  if (cfg.mac) {
+    console.log(`Default target: ${cfg.name} (${cfg.mac}) → ${cfg.broadcast}:${cfg.port}`);
+  } else {
+    console.log("No config.json MAC set yet — copy config.example.json to config.json");
+  }
 });
