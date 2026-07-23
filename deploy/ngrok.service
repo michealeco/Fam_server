@@ -1,0 +1,18 @@
+[Unit]
+Description=ngrok tunnels (other-app + pc-open)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=micheal
+WorkingDirectory=/home/micheal
+ExecStart=/usr/local/bin/ngrok start --all --config /home/micheal/.config/ngrok/ngrok.yml
+Restart=on-failure
+RestartSec=5
+# Keep logs in journalctl
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
