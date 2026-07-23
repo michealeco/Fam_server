@@ -3,100 +3,90 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0f1a17" />
+    <meta name="theme-color" content="#e8edf2" />
     <title>PC Open — Wake on LAN</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="atmosphere" aria-hidden="true"></div>
-    <div class="grid" aria-hidden="true"></div>
+    <div class="backdrop" aria-hidden="true">
+      <div class="wash"></div>
+      <div class="noise"></div>
+      <svg class="signal-art" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="waveStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#1f6feb" stop-opacity="0" />
+            <stop offset="35%" stop-color="#1f6feb" stop-opacity="0.55" />
+            <stop offset="65%" stop-color="#0f9d8a" stop-opacity="0.45" />
+            <stop offset="100%" stop-color="#0f9d8a" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path
+          class="wave wave-a"
+          d="M-40 260 C 80 140, 180 380, 300 260 S 520 140, 640 260 S 840 380, 960 260"
+          fill="none"
+          stroke="url(#waveStroke)"
+          stroke-width="2.2"
+        />
+        <path
+          class="wave wave-b"
+          d="M-40 290 C 100 200, 200 390, 320 290 S 540 190, 660 290 S 860 390, 980 290"
+          fill="none"
+          stroke="url(#waveStroke)"
+          stroke-width="1.4"
+          opacity="0.55"
+        />
+        <path
+          class="wave wave-c"
+          d="M-40 230 C 90 120, 190 340, 310 230 S 530 120, 650 230 S 850 340, 970 230"
+          fill="none"
+          stroke="url(#waveStroke)"
+          stroke-width="1.2"
+          opacity="0.35"
+        />
+      </svg>
+    </div>
 
-    <main class="shell">
-      <header class="brand">
-        <p class="logo">PC Open</p>
-        <p class="tagline">Send a magic packet. Bring your machine back online.</p>
-      </header>
+    <main class="page">
+      <section class="hero" aria-labelledby="brand">
+        <p id="brand" class="brand">PC Open</p>
+        <p class="lede">Wake your machine from anywhere on the network.</p>
 
-      <section class="stage" aria-labelledby="wake-heading">
-        <h1 id="wake-heading" class="sr-only">Wake your PC</h1>
-
-        <button type="button" id="wakeBtn" class="power" aria-describedby="status">
-          <span class="power-ring" aria-hidden="true"></span>
-          <span class="power-core">
-            <svg viewBox="0 0 24 24" width="42" height="42" aria-hidden="true">
-              <path
-                d="M12 3v9"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-              />
-              <path
-                d="M7.2 6.4a7.5 7.5 0 1 0 9.6 0"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-              />
-            </svg>
-            <span class="power-label">Wake</span>
-          </span>
-        </button>
-
-        <p id="status" class="status" role="status" aria-live="polite">Ready</p>
-      </section>
-
-      <section class="config" aria-labelledby="config-heading">
-        <div class="config-head">
-          <h2 id="config-heading">Target</h2>
-          <button type="button" id="detectBtn" class="ghost">Detect network</button>
+        <div class="wake-block">
+          <button type="button" id="wakeBtn" class="wake" aria-describedby="status">
+            <span class="wake-orbit" aria-hidden="true"></span>
+            <span class="wake-orbit wake-orbit-delayed" aria-hidden="true"></span>
+            <span class="wake-face">
+              <svg class="wake-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M12 3v8.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M7.05 6.8a7.2 7.2 0 1 0 9.9 0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.4"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span class="wake-copy">Wake</span>
+            </span>
+          </button>
+          <p id="status" class="status" role="status" aria-live="polite">Ready</p>
+          <p id="targetName" class="target-name"></p>
         </div>
-
-        <form id="wakeForm" class="fields" autocomplete="on">
-          <label class="field">
-            <span>MAC address</span>
-            <input
-              id="mac"
-              name="mac"
-              type="text"
-              inputmode="text"
-              spellcheck="false"
-              placeholder="AA:BB:CC:DD:EE:FF"
-              required
-            />
-          </label>
-
-          <div class="row">
-            <label class="field">
-              <span>Broadcast address</span>
-              <input
-                id="broadcast"
-                name="broadcast"
-                type="text"
-                inputmode="decimal"
-                spellcheck="false"
-                placeholder="192.168.1.255"
-                value="255.255.255.255"
-              />
-            </label>
-
-            <label class="field field-port">
-              <span>Port</span>
-              <input id="port" name="port" type="number" min="1" max="65535" value="9" />
-            </label>
-          </div>
-        </form>
-
-        <p id="hint" class="hint"></p>
       </section>
     </main>
 
-    <script src="/app.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

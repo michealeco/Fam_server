@@ -1,7 +1,7 @@
 {
   "name": "pc-open",
   "version": "1.0.0",
-  "description": "Wake-on-LAN web app for your PC",
+  "description": "Wake-on-LAN: Vercel UI + Ubuntu magic-packet sender",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

@@ -7,6 +7,7 @@ const { networkInterfaces } = require("os");
 const PORT = Number(process.env.PORT) || 3847;
 const PUBLIC_DIR = path.join(__dirname, "public");
 const CONFIG_PATH = path.join(__dirname, "config.json");
+const WAKE_TOKEN = process.env.WAKE_TOKEN || process.env.PC_OPEN_WAKE_TOKEN || "";
 
 function loadConfig() {
   try {
@@ -26,6 +27,18 @@ function loadConfig() {
       name: process.env.WOL_NAME || "PC",
     };
   }
+}
+
+function publicConfig() {
+  const cfg = loadConfig();
+  return { name: cfg.name || "My PC" };
+}
+
+function authorize(req) {
+  if (!WAKE_TOKEN) return true;
+  const header = req.headers.authorization || "";
+  const match = /^Bearer\s+(.+)$/i.exec(header);
+  return Boolean(match && match[1] === WAKE_TOKEN);
 }
 
 const MIME = {
@@ -85,20 +98,20 @@ function localIpv4Hints() {
   return hints;
 }
 
-function sendWake({ mac, broadcast, port } = {}) {
+function sendWake() {
   return new Promise((resolve, reject) => {
     const defaults = loadConfig();
-    const macBuf = parseMac(mac || defaults.mac);
+    const macBuf = parseMac(defaults.mac);
     if (!macBuf) {
-      reject(new Error("Invalid MAC address. Use format AA:BB:CC:DD:EE:FF"));
+      reject(new Error("Set your PC MAC in config.json"));
       return;
     }
-    const target = broadcast || defaults.broadcast || "255.255.255.255";
+    const target = defaults.broadcast || "255.255.255.255";
     if (!isBroadcastIp(target)) {
-      reject(new Error("Invalid broadcast / IP address"));
+      reject(new Error("Invalid broadcast / IP address in config.json"));
       return;
     }
-    const udpPort = Number(port || defaults.port) || 9;
+    const udpPort = Number(defaults.port) || 9;
     if (!Number.isInteger(udpPort) || udpPort < 1 || udpPort > 65535) {
       reject(new Error("Port must be between 1 and 65535"));
       return;
@@ -208,19 +221,31 @@ const server = http.createServer(async (req, res) => {
   const url = (req.url || "").split("?")[0];
 
   if (req.method === "GET" && url === "/api/network") {
+    if (!authorize(req)) {
+      sendJson(res, 401, { ok: false, error: "Unauthorized" });
+      return;
+    }
     sendJson(res, 200, { interfaces: localIpv4Hints() });
     return;
   }
 
   if (req.method === "GET" && url === "/api/config") {
-    sendJson(res, 200, loadConfig());
+    if (!authorize(req)) {
+      sendJson(res, 401, { ok: false, error: "Unauthorized" });
+      return;
+    }
+    sendJson(res, 200, publicConfig());
     return;
   }
 
   if (req.method === "POST" && url === "/api/wake") {
+    if (!authorize(req)) {
+      sendJson(res, 401, { ok: false, error: "Unauthorized" });
+      return;
+    }
     try {
-      const body = await readBody(req);
-      const result = await sendWake(body);
+      await readBody(req);
+      const result = await sendWake();
       sendJson(res, 200, { ok: true, ...result });
     } catch (err) {
       sendJson(res, 400, { ok: false, error: err.message || String(err) });

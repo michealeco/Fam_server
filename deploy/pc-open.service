@@ -10,6 +10,7 @@ Group=www-data
 WorkingDirectory=/opt/pc-open
 Environment=NODE_ENV=production
 Environment=PORT=3847
+EnvironmentFile=-/opt/pc-open/wake.env
 ExecStart=/usr/bin/node /opt/pc-open/server.js
 Restart=on-failure
 RestartSec=3

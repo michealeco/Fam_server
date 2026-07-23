@@ -1,6 +1,6 @@
 {
-  "mac": "AA:BB:CC:DD:EE:FF",
-  "broadcast": "192.168.1.255",
+  "mac": "74:56:3C:2B:1F:39",
+  "broadcast": "192.168.254.255",
   "port": 9,
   "name": "My PC"
 }
