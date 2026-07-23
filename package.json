@@ -4,6 +4,7 @@
   "description": "Wake-on-LAN: Vercel UI + Ubuntu magic-packet sender",
   "main": "server.js",
   "scripts": {
+    "build": "node -e \"console.log('PC Open: static UI, no frontend compile')\"",
     "start": "node server.js",
     "dev": "node --watch server.js"
   },
