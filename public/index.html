@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f1a17" />
+    <title>PC Open — Wake on LAN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="grid" aria-hidden="true"></div>
+
+    <main class="shell">
+      <header class="brand">
+        <p class="logo">PC Open</p>
+        <p class="tagline">Send a magic packet. Bring your machine back online.</p>
+      </header>
+
+      <section class="stage" aria-labelledby="wake-heading">
+        <h1 id="wake-heading" class="sr-only">Wake your PC</h1>
+
+        <button type="button" id="wakeBtn" class="power" aria-describedby="status">
+          <span class="power-ring" aria-hidden="true"></span>
+          <span class="power-core">
+            <svg viewBox="0 0 24 24" width="42" height="42" aria-hidden="true">
+              <path
+                d="M12 3v9"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M7.2 6.4a7.5 7.5 0 1 0 9.6 0"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span class="power-label">Wake</span>
+          </span>
+        </button>
+
+        <p id="status" class="status" role="status" aria-live="polite">Ready</p>
+      </section>
+
+      <section class="config" aria-labelledby="config-heading">
+        <div class="config-head">
+          <h2 id="config-heading">Target</h2>
+          <button type="button" id="detectBtn" class="ghost">Detect network</button>
+        </div>
+
+        <form id="wakeForm" class="fields" autocomplete="on">
+          <label class="field">
+            <span>MAC address</span>
+            <input
+              id="mac"
+              name="mac"
+              type="text"
+              inputmode="text"
+              spellcheck="false"
+              placeholder="AA:BB:CC:DD:EE:FF"
+              required
+            />
+          </label>
+
+          <div class="row">
+            <label class="field">
+              <span>Broadcast address</span>
+              <input
+                id="broadcast"
+                name="broadcast"
+                type="text"
+                inputmode="decimal"
+                spellcheck="false"
+                placeholder="192.168.1.255"
+                value="255.255.255.255"
+              />
+            </label>
+
+            <label class="field field-port">
+              <span>Port</span>
+              <input id="port" name="port" type="number" min="1" max="65535" value="9" />
+            </label>
+          </div>
+        </form>
+
+        <p id="hint" class="hint"></p>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
